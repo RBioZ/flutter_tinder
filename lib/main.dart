@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tinder/components/tinder_card.dart';
 import 'package:flutter_tinder/providers/card_provider.dart';
-import 'package:flutter_tinder/screens/mainpage.dart';
+import 'package:flutter_tinder/screens/main_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {

@@ -28,14 +28,25 @@ class _MainPageState extends State<MainPage> {
     final provider = Provider.of<CardProvider>(context);
     final urlImages = provider.urlImages;
 
-    return Stack(
-        children: urlImages
-            .map(
-              (urlImage) => TinderCard(
-                urlImage: urlImage,
-                isFront: urlImages.last == urlImage,
-              ),
-            )
-            .toList());
+    return urlImages.isEmpty
+        ? Center(
+            child: ElevatedButton(
+              child: Text("Restart"),
+              onPressed: () {
+                final provider =
+                    Provider.of<CardProvider>(context, listen: false);
+                provider.resetUsers();
+              },
+            ),
+          )
+        : Stack(
+            children: urlImages
+                .map(
+                  (urlImage) => TinderCard(
+                    urlImage: urlImage,
+                    isFront: urlImages.last == urlImage,
+                  ),
+                )
+                .toList());
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+enum CardStatus { like, dislike, superLike }
 
 class CardProvider extends ChangeNotifier {
   List<String> _urlImages = [];
@@ -34,7 +37,30 @@ class CardProvider extends ChangeNotifier {
   }
 
   void endPosition() {
-    resetPosition();
+    _isDragging = false;
+    notifyListeners();
+
+    final status = getStatus();
+
+    if (status != null) {
+      Fluttertoast.cancel();
+      Fluttertoast.showToast(
+          msg: status.toString().split('.').last.toUpperCase(), fontSize: 32.0);
+    }
+
+    switch (status) {
+      case CardStatus.like:
+        like();
+        break;
+      case CardStatus.dislike:
+        dislike();
+        break;
+      case CardStatus.superLike:
+        superLike();
+        break;
+      default:
+        resetPosition();
+    }
   }
 
   void resetPosition() {
@@ -43,6 +69,54 @@ class CardProvider extends ChangeNotifier {
     _angle = 0;
 
     notifyListeners();
+  }
+
+  CardStatus? getStatus() {
+    final x = _position.dx;
+    final y = _position.dy;
+    final forceSuperLike = x.abs() < 20;
+
+    final delta = 100;
+
+    if (x >= delta) {
+      return CardStatus.like;
+    } else if (x <= -delta) {
+      return CardStatus.dislike;
+    } else if (y <= -delta / 2 && forceSuperLike) {
+      return CardStatus.superLike;
+    }
+  }
+
+  void like() {
+    _angle = 20;
+    _position += Offset(2 * _screenSize.width / 2, 0);
+    _nextCard();
+
+    notifyListeners();
+  }
+
+  void dislike() {
+    _angle = -20;
+    _position -= Offset(2 * _screenSize.width, 0);
+    _nextCard();
+
+    notifyListeners();
+  }
+
+  void superLike() {
+    _angle = 0;
+    _position -= Offset(0, _screenSize.height);
+    _nextCard();
+
+    notifyListeners();
+  }
+
+  Future _nextCard() async {
+    if (_urlImages.isEmpty) return;
+
+    await Future.delayed(Duration(milliseconds: 200));
+    _urlImages.removeLast();
+    resetPosition();
   }
 
   void resetUsers() {
